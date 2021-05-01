@@ -44,8 +44,8 @@ class Game extends React.Component {
   constructor(props) {
     super(props);
     this.pubnub = new PubNubReact({
-      publishKey: "ENTER_YOUR_PUBLISH_KEY_HERE", 
-      subscribeKey: "ENTER_YOUR_SUBSCRIBE_KEY_HERE"    
+      publishKey: 'pub-c-a54a5e2b-fd9a-4ce8-98e4-c896b5377c1f',
+      subscribeKey: 'sub-c-df104e28-aa43-11eb-a2f9-7226f347561f'
     });
     this.state = {
       squares: Array(9).fill(''),
@@ -86,15 +86,15 @@ class Game extends React.Component {
       withPresence: true
     });
     this.pubnub.getMessage('gameLobby', (msg) => {
-      if(msg.message.not_room_creator){    
+      if (msg.message.not_room_creator) {
         this.pubnub.unsubscribe({
-          channels : ['gameLobby']
-        }); 
+          channels: ['gameLobby']
+        });
         this.setState({
           is_waiting: false,
           is_playing: true,
-        });  
-      } 
+        });
+      }
     });
   }
 
@@ -123,17 +123,18 @@ class Game extends React.Component {
 
   joinRoom = () => {
     this.channel = 'tictactoe--' + this.state.input;
-    
+
     // Check the number of people in the channel
     this.pubnub.hereNow({
-      channels: [this.channel], 
-    }).then((response) => { 
-        if(response.totalOccupancy < 2){
+      channels: [this.channel],
+    })
+      .then((response) => {
+        if (response.totalOccupancy < 2) {
           this.pubnub.subscribe({
             channels: [this.channel],
             withPresence: true
           });
-          
+
           this.pubnub.publish({
             message: {
               readyToPlay: true,
@@ -142,17 +143,17 @@ class Game extends React.Component {
             },
             channel: 'gameLobby'
           });
-      
+
           this.setState({
             is_waiting: true,
-          });     
-        } 
-        else{
-          console.log('lobby full')
+          });
+        } else {
+          console.log('lobby full');
         }
-    }).catch((error) => { 
-        console.log(error)
-    });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   handleChange = (event) => {
@@ -199,7 +200,7 @@ class Game extends React.Component {
 
     if(this.state.myTurn){
       const squares = this.state.squares;
-  
+
       if (calculateWinner(squares).winner || squares[i]) {
         return;
       }
@@ -208,10 +209,10 @@ class Game extends React.Component {
         squares: squares,
         myTurn: !this.state.myTurn,
       });
-  
+
       let temp = getLocation(i);
       let row = temp.row;
-      let col = temp.col;  
+      let col = temp.col;
       this.turn = (this.turn === 'O') ? 'X' : 'O';
 
       this.pubnub.publish({
@@ -223,7 +224,7 @@ class Game extends React.Component {
           turn: this.turn
         },
         channel: this.channel
-      });       
+      });
     }
   }
 
@@ -233,34 +234,34 @@ class Game extends React.Component {
     let status;
     if (winner) {
       status = `Winner ${winner}`;
-    } 
+    }
     else {
       status = `Current player: ${this.state.myTurn ? 'O' : 'X'}`;
     }
 
     return (
-      <div className="game">  
+      <div className="game">
         <Board
           squares={this.state.squares}
           winnerSquares={winnerRow}
           onClick={i => this.handleClick(i)}
-        />            
+        />
 
         <div className="game-info">
-          <p>{status}</p> 
+          <p>{status}</p>
           <div>
-            <input 
-              type="text" 
-              onChange={ this.addUsername } 
+            <input
+              type="text"
+              onChange={this.addUsername}
               placeholder="Enter your username"
-              />
+            />
           </div>
           <div>
-            <input 
-              type="text" 
-              onChange={ this.handleChange }
+            <input
+              type="text"
+              onChange={this.handleChange}
               placeholder="Enter the room name"
-              />
+            />
             <input
               className="buttonClass"
               type="button"
@@ -269,7 +270,7 @@ class Game extends React.Component {
               onClick={this.handleSubmit}
             />
           </div>
-        </div>    
+        </div>
       </div>
     );
   }
